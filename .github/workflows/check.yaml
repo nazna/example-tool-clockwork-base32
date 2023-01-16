@@ -31,5 +31,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
-      - uses: acifani/setup-tinygo@1
+      - uses: acifani/setup-tinygo@v1
       - run: make build
