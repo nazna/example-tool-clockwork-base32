@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version-file: "go.mod"
-      - uses: actions/setup-tinygo@1
+      - uses: acifani/setup-tinygo@v1
         with:
           tinygo-version: 0.26.0
       - run: make build
