@@ -1,0 +1,19 @@
+project_name: example-tool-clockwork-base32
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - binary: cwbase32
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ end }}"

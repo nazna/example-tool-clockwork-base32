@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Output
+dist
+pages
+cwbase32
+cwbase32.wasm
+wasm_exec_tinygo.js

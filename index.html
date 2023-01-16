@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Clockwork Base32</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .root {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100dvw;
+        height: 100dvh;
+      }
+
+      .title {
+        font-size: 3rem;
+        color: #222;
+      }
+
+      .container {
+        margin-top: 4rem;
+        width: 1280px;
+        display: flex;
+        gap: 32px;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .textarea {
+        width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #d1d5db;
+        font-size: 1.4rem;
+        padding: 0.5rem 0.75rem;
+        font-family: inherit;
+      }
+
+      .textarea:focus {
+        outline: 0;
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.3rem rgb(13 110 253 / 18%);
+      }
+
+      .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      .button {
+        padding: 1rem 2rem;
+        cursor: pointer;
+        color: #fff;
+        background-color: #374151;
+        border: 1px solid #374151;
+        border-radius: 0.5rem;
+        font-weight: bold;
+        font-size: 24px;
+      }
+
+      .button:hover {
+        background-color: #111827;
+      }
+
+      .button:focus {
+        outline: 0;
+        border-color: #111827;
+        box-shadow: 0 0 0 0.3rem rgb(0 0 0 / 12%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="root">
+      <h2 class="title">Clockwork Base32 encoder/decoder</h2>
+      <div class="container">
+        <textarea id="input" class="textarea" rows="12" placeholder="input..."></textarea>
+        <div class="button-group">
+          <button id="encode" class="button" type="button">Encode</button>
+          <button id="decode" class="button" type="button">Decode</button>
+        </div>
+        <textarea id="output" class="textarea" rows="12" placeholder="output..."></textarea>
+      </div>
+    </div>
+    <script src="wasm_exec_tinygo.js"></script>
+    <script type="module">
+      const go = new Go();
+      const result = await WebAssembly.instantiateStreaming(fetch("cwbase32.wasm"), go.importObject);
+      const wasm = result.instance.exports;
+
+      const cwbase32encode = (input) => {
+        const addr = wasm.getBuffer();
+        const mem = new Uint8Array(wasm.memory.buffer);
+        const view = mem.subarray(addr, addr + input.length);
+
+        for (let i=0; i<input.length; i++) {
+          view[i] = input.charCodeAt(i);
+        }
+
+        const offset = wasm.cwbase32(addr, input.length, false);
+        const length = wasm.cwbase32len(addr, input.length, false);
+
+        const buffer = new Uint8Array(wasm.memory.buffer, offset, length);
+        const str = new TextDecoder("utf8").decode(buffer);
+
+        return str;
+      }
+
+      const cwbase32decode = (input) => {
+        const addr = wasm.getBuffer();
+        const mem = new Uint8Array(wasm.memory.buffer);
+        const view = mem.subarray(addr, addr + input.length);
+
+        for (let i=0; i<input.length; i++) {
+          view[i] = input.charCodeAt(i);
+        }
+
+        const offset = wasm.cwbase32(addr, input.length, true);
+        const length = wasm.cwbase32len(addr, input.length, true);
+
+        const buffer = new Uint8Array(wasm.memory.buffer, offset, length);
+        const str = new TextDecoder("utf8").decode(buffer);
+
+        return str;
+      }
+
+      document.getElementById("encode").addEventListener("click", () => {
+        const input = document.getElementById("input").value;
+
+        if (!input) {
+          return;
+        }
+
+        const encoded = cwbase32encode(input);
+        document.getElementById("output").value = encoded;
+      });
+
+      document.getElementById("decode").addEventListener("click", () => {
+        const input = document.getElementById("input").value;
+
+        if (!input) {
+          return;
+        }
+
+        const decoded = cwbase32decode(input);
+        document.getElementById("output").value = decoded;
+      });
+    </script>
+  </body>
+</html>

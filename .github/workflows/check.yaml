@@ -1,0 +1,35 @@
+name: check
+
+on:
+  push:
+    branchs:
+      - main
+
+env:
+  CI: true
+  TZ: Asia/Tokyo
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${ {github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+      - uses: reviewdog/action-staticcheck@v1
+        with:
+          reporter: github-pr-review
+          level: warning
+  build:
+    runs-on: ubuntu_latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+      - uses: actions/setup-tinygo@1
+      - run: make build
