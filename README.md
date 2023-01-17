@@ -14,6 +14,8 @@ make dev
 
 ```shellscript
 git describe --tags --abbrev=0
+git tag v0.0.x
+git push origin --tags
 ```
 
 ## References
