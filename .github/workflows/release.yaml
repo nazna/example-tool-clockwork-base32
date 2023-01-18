@@ -15,7 +15,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: ${{ github.workflow }}-${ {github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -55,4 +55,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v1
+      - id: deployment
+        uses: actions/deploy-pages@v1
